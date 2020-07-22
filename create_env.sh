@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 touch .flaskenv
 
 echo "FLASK_ENV=production" >> .flaskenv

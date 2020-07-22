@@ -1,0 +1,10 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: mangascan-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: nebula-sdk-static-ip
+spec:
+  backend:
+    serviceName: mangascan-service
+    servicePort: 5000

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mangascan-service
+  labels:
+    run: mangascan
+    app: mangascan
+    service: mangascan
+spec:
+  selector:
+    run: mangascan
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: NodePort

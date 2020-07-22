@@ -3,6 +3,9 @@ from core.exceptions import RetrievingMangaException
 from model.manga import manga
 from core.cache import cache
 from core import collect
+from utils.logger import init_logger
+
+logger = init_logger(__name__)
 
 api = Namespace("releases", description="get the newest manga releases")
 
@@ -25,6 +28,7 @@ class VizReleases(Resource):
             viz_releases = collect.get_viz()
             return viz_releases
         except RetrievingMangaException as e:
+            logger.error(e)
             abort(e.status_code, e.error_message)
 
 
@@ -51,6 +55,7 @@ class SevenSeasReleases(Resource):
             ss_releases = collect.get_seven_seas()
             return ss_releases
         except RetrievingMangaException as e:
+            logger.error(e)
             abort(e.status_code, e.error_message)
 
 
@@ -64,6 +69,7 @@ class DarkHorseReleases(Resource):
             dark_releases = collect.get_dark_horse()
             return dark_releases
         except RetrievingMangaException as e:
+            logger.error(e)
             abort(e.status_code, e.error_message)
 
 
@@ -77,4 +83,5 @@ class KodanshaReleases(Resource):
             kodansha_releases = collect.get_kodansha()
             return kodansha_releases
         except RetrievingMangaException as e:
+            logger.error(e)
             abort(e.status_code, e.error_message)

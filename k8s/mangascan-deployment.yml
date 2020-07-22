@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mangascan
+  labels:
+    app: mangascan
+    run: mangascan
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  selector:
+    matchLabels:
+      run: mangascan
+  template:
+    metadata:
+      labels:
+        app: mangascan
+        run: mangascan
+    spec:
+      containers:
+        - name: mangascan
+          image: djam97/mangascan
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+          env:                     # Environment variables passed to the container
+            - name: REDIS_HOST
+              value: redis-master
+            - name: REDIS_PORT
+              value: "6379"
