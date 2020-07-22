@@ -3,6 +3,8 @@ class BaseException(Exception):
         self.status_code = kwargs.get("status_code") or 500
         self.error_message = error_message
 
+
 class RetrievingMangaException(BaseException):
     """When no manga can be retrieved throw a exception"""
+
     pass

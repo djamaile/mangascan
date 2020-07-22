@@ -1,10 +1,12 @@
 import requests
-import time
 from bs4 import BeautifulSoup
-from exceptions import RetrievingMangaException
+from core.exceptions import RetrievingMangaException
+from typing import List
+from dataclasses import asdict
+from helper.manga import Manga
 
 
-def get_viz():
+def get_viz() -> List[Manga]:
     date = "21-7-2020".split("-")
     year = date[2]
     month = "0" + date[1] if int(date[1]) < 10 else date[1]
@@ -23,7 +25,7 @@ def get_viz():
             for n in rowUnder:
                 name = n.h4.a.text
                 link = f"viz.com{n.h4.a['href']}"
-            manga.append({"name": name, "img": img, "link": link})
+            manga.append(asdict(Manga(name=name, img=img, link=link, publisher="viz")))
         return manga
     except requests.RequestException as e:
         raise RetrievingMangaException(
@@ -32,7 +34,7 @@ def get_viz():
         )
 
 
-def get_yen():
+def get_yen() -> List[Manga]:
     URL = "https://yenpress.com/new-releases/"
     manga = []
 
@@ -45,7 +47,9 @@ def get_yen():
             img = row.img["src"].rsplit("?", 1)[0]
             detail = row.findAll("div", attrs={"class": "book-detail-links"})
             link = "https://yenpress.com" + detail[0].a["href"]
-            manga.append({"name": name, "img": img, "link": link})
+            manga.append(
+                asdict(Manga(name=name, img=img, link=link, publisher="yen press"))
+            )
         return manga
     except requests.RequestException as e:
         raise RetrievingMangaException(
@@ -54,7 +58,7 @@ def get_yen():
         )
 
 
-def get_seven_seas():
+def get_seven_seas() -> List[Manga]:
     URL = "https://sevenseasentertainment.com/release-dates/"
     manga = []
 
@@ -76,7 +80,9 @@ def get_seven_seas():
                     img = img.replace(remove, "")
             img = img.split(",")
             img = img[len(img) - 1]
-            manga.append({"name": name, "img": img, "link": link})
+            manga.append(
+                asdict(Manga(name=name, img=img, link=link, publisher="seven seas"))
+            )
         return manga
     except requests.RequestException as e:
         raise RetrievingMangaException(
@@ -85,7 +91,7 @@ def get_seven_seas():
         )
 
 
-def get_dark_horse():
+def get_dark_horse() -> List[Manga]:
     date = "21-7-2020"
     months = {
         "1": "Jan",
@@ -111,7 +117,6 @@ def get_dark_horse():
         r = requests.get(URL)
         soup = BeautifulSoup(r.content, "html5lib")
 
-
         table = soup.findAll("div", attrs={"class": "list_item"})
         for row in table:
             img = row.find("a", attrs={"class": "product_link"}).img["src"]
@@ -119,7 +124,9 @@ def get_dark_horse():
             name = row.findAll("a", attrs={"class": "product_link"})[
                 2
             ].text  # access link that has the manga name
-            manga.append({"name": name, "img": img, "link": link})
+            manga.append(
+                asdict(Manga(name=name, img=img, link=link, publisher="darkhorse"))
+            )
         return manga
     except requests.RequestException as e:
         raise RetrievingMangaException(
@@ -129,6 +136,7 @@ def get_dark_horse():
 
 
 def get_kodansha():
+    print("hallo")
     URL = "https://kodanshacomics.com/new-releases/"
     manga = []
 
@@ -140,11 +148,12 @@ def get_kodansha():
         for row in table:
             name = row.h4.cite.text
             link = row.h4.a["href"]
-            img = get_manga_image_of_kodansha(link)
-            manga.append({"name": name, "img": img, "link": link})
-            time.sleep(10)  # kodansha times out if you request to much, to fast
+            manga.append(
+                asdict(Manga(name=name, img="placeholder", link=link, publisher="kodansha"))
+            )
         return manga
     except requests.RequestException as e:
+
         raise RetrievingMangaException(
             "Something went wrong retrieving kondansha manga",
             status_code=e.response.status_code,
@@ -153,9 +162,12 @@ def get_kodansha():
 
 def get_manga_image_of_kodansha(url: str):
     r = requests.get(url)
+    s = requests.session()
     soup = BeautifulSoup(r.content, "html5lib")
     row = soup.find("div", attrs={"class": "sidebar"})
-    return row.img["src"]
-
-
+    s.cookies.clear()
+    if row:
+        return row.img["src"]
+    else:
+        return "placeholder"
 
