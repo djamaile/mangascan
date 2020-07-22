@@ -11,9 +11,6 @@ api = Namespace("releases", description="get the newest manga releases")
 
 api.models[manga.name] = manga
 
-release_parser = api.parser()
-release_parser.add_argument("date", type=str, location="args", required=False)
-
 
 @api.route("/viz")
 @api.param("date", "current date")
@@ -22,9 +19,7 @@ class VizReleases(Resource):
     @api.marshal_with(manga, envelope="manga")
     @cache.cached(timeout=3600, query_string=True)
     def get(self):
-        args = release_parser.parse_args()
         try:
-            date = args["date"]
             viz_releases = collect.get_viz()
             return viz_releases
         except RetrievingMangaException as e:
