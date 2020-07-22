@@ -12,6 +12,7 @@ I am currently tracking these publishers:
 I have to mention that tracking Kodansha is still work in process. It currently works, but without receiving the images of the manga titles.
 
 ## Run
+**Note**: the application will run <base-url>/api/v1 <br><br>
 You can run MangaScan in few different ways. The first method is using Kubernetes. Open the root folder in your terminal and execute the following command:
 ```shell script
 $ kubectl apply -f k8s
