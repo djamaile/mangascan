@@ -4,7 +4,14 @@ from core.exceptions import RetrievingMangaException
 from typing import List
 from dataclasses import asdict
 from helper.manga import Manga
+from utils.logger import init_logger
 
+logger = init_logger(__name__)
+
+def get_html(url: str, publisher: str) -> BeautifulSoup:
+    logger.debug(f"Trying to retrieve new releases from publisher {publisher}")
+    r = requests.get(url)
+    return BeautifulSoup(r.content, "html5lib")
 
 def get_viz() -> List[Manga]:
     date = "21-7-2020".split("-")
@@ -12,8 +19,7 @@ def get_viz() -> List[Manga]:
     month = "0" + date[1] if int(date[1]) < 10 else date[1]
     URL = f"https://www.viz.com/calendar/{year}/{month}"
     try:
-        r = requests.get(URL)
-        soup = BeautifulSoup(r.content, "html5lib")
+        soup = get_html(URL, "viz")
         manga = []
         table = soup.select("article[class^=g-3]")
 
@@ -34,13 +40,13 @@ def get_viz() -> List[Manga]:
         )
 
 
+
 def get_yen() -> List[Manga]:
     URL = "https://yenpress.com/new-releases/"
     manga = []
 
     try:
-        r = requests.get(URL)
-        soup = BeautifulSoup(r.content, "html5lib")
+        soup = get_html(URL, "yen press")
         table = soup.findAll("li", attrs={"class": "book-shelf-title-grid"})
         for row in table:
             name = row.img["data-title"]
@@ -63,8 +69,7 @@ def get_seven_seas() -> List[Manga]:
     manga = []
 
     try:
-        r = requests.get(URL)
-        soup = BeautifulSoup(r.content, "html5lib")
+        soup = get_html(URL, "seven seas")
         table = soup.findAll(
             "div",
             attrs={
@@ -110,13 +115,11 @@ def get_dark_horse() -> List[Manga]:
 
     month = months[date.split("-")[1]]
     year = date.split("-")[2]
+    URL = f"https://www.darkhorse.com/Books/Browse/Manga---{month}+{year}-{month}+{year}/P9wdwkt8"
     manga = []
 
     try:
-        URL = f"https://www.darkhorse.com/Books/Browse/Manga---{month}+{year}-{month}+{year}/P9wdwkt8"
-        r = requests.get(URL)
-        soup = BeautifulSoup(r.content, "html5lib")
-
+        soup = get_html(URL, "dark horse")
         table = soup.findAll("div", attrs={"class": "list_item"})
         for row in table:
             img = row.find("a", attrs={"class": "product_link"}).img["src"]
@@ -136,15 +139,12 @@ def get_dark_horse() -> List[Manga]:
 
 
 def get_kodansha():
-    print("hallo")
     URL = "https://kodanshacomics.com/new-releases/"
     manga = []
 
     try:
-        r = requests.get(URL)
-        soup = BeautifulSoup(r.content, "html5lib")
+        soup = get_html(URL, "kodansha")
         table = soup.findAll("article", "card card--no-outline release-card")
-
         for row in table:
             name = row.h4.cite.text
             link = row.h4.a["href"]
@@ -153,21 +153,8 @@ def get_kodansha():
             )
         return manga
     except requests.RequestException as e:
-
         raise RetrievingMangaException(
             "Something went wrong retrieving kondansha manga",
             status_code=e.response.status_code,
         )
-
-
-def get_manga_image_of_kodansha(url: str):
-    r = requests.get(url)
-    s = requests.session()
-    soup = BeautifulSoup(r.content, "html5lib")
-    row = soup.find("div", attrs={"class": "sidebar"})
-    s.cookies.clear()
-    if row:
-        return row.img["src"]
-    else:
-        return "placeholder"
 
