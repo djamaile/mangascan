@@ -8,5 +8,6 @@ CORS(app)
 cache.init_app(app)
 app.register_blueprint(v1)
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)

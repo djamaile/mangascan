@@ -135,10 +135,11 @@ def get_dark_horse() -> List[Manga]:
         soup = get_html(URL, "darkhorse")
         table = soup.findAll("div", attrs={"class": "list_item"})
         for row in table:
+            print(row)
             img = row.find("a", attrs={"class": "product_link"}).img["src"]
             link = f"darkhorse.com{row.a['href']}"
             name = row.findAll("a", attrs={"class": "product_link"})[
-                2
+                1
             ].text  # access link that has the manga name
             manga.append(
                 asdict(Manga(name=name, img=img, link=link, publisher="darkhorse"))
@@ -201,3 +202,4 @@ def get_manga_image_of_kodansha(url: str, name: str):
     except (TypeError, AttributeError):
         logger.debug(f"Could not get the image of {name}, link is: {url}")
         return "placeholder"
+
